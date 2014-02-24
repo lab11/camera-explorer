@@ -198,6 +198,10 @@
     <Content Include="Assets\Icons\overlay.scenemode.sunset.png" />
     <Content Include="Assets\Icons\questionmark.png" />
     <Content Include="Assets\Icons\save.png" />
+    <Content Include="Assets\Icons\stop.png" />
+    <Content Include="Assets\Icons\transport.pause.png" />
+    <Content Include="Assets\Icons\transport.play.png" />
+    <Content Include="Assets\Icons\upload.png" />
     <Content Include="Assets\Lens.Screen-720p.png" />
     <Content Include="Assets\Lens.Screen-WVGA.png" />
     <Content Include="Assets\Lens.Screen-WXGA.png" />

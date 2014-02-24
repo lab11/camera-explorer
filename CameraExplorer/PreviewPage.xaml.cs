@@ -13,6 +13,172 @@ using System.IO.IsolatedStorage;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
+// REST Directives
+using System.IO;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
+
+// https://gist.github.com/mcnemesis/6250994
+namespace RESTAPI
+{
+    /// <summary>
+    /// Encapsulates functionality to make it possible to make
+    /// RESTful API calls on web resources and services
+    /// </summary>
+    class RESTAPIHandler
+    {
+        public delegate void RESTSuccessCallback(Stream stream);
+        public delegate void RESTErrorCallback(String reason);
+
+        public void get(Uri uri, Dictionary<String, String> extra_headers, RESTSuccessCallback success_callback, RESTErrorCallback error_callback)
+        {
+            HttpWebRequest request = WebRequest.CreateHttp(uri);
+
+            if (extra_headers != null)
+                foreach (String header in extra_headers.Keys)
+                    try
+                    {
+                        request.Headers[header] = extra_headers[header];
+                    }
+                    catch (Exception) { }
+
+            request.BeginGetResponse((IAsyncResult result) =>
+            {
+                HttpWebRequest req = result.AsyncState as HttpWebRequest;
+                if (req != null)
+                {
+                    try
+                    {
+                        WebResponse response = req.EndGetResponse(result);
+                        success_callback(response.GetResponseStream());
+                    }
+                    catch (WebException e)
+                    {
+                        error_callback(e.Message);
+                        return;
+                    }
+                }
+            }, request);
+        }
+
+        public static void post(Uri uri, Dictionary<String, String> post_params, Dictionary<String, String> extra_headers, RESTSuccessCallback success_callback, RESTErrorCallback error_callback)
+        {
+            HttpWebRequest request = WebRequest.CreateHttp(uri);
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.Method = "POST";
+
+            if (extra_headers != null)
+                foreach (String header in extra_headers.Keys)
+                    try
+                    {
+                        request.Headers[header] = extra_headers[header];
+                    }
+                    catch (Exception) { }
+
+
+            request.BeginGetRequestStream((IAsyncResult result) =>
+            {
+                HttpWebRequest preq = result.AsyncState as HttpWebRequest;
+                if (preq != null)
+                {
+                    Stream postStream = preq.EndGetRequestStream(result);
+
+                    StringBuilder postParamBuilder = new StringBuilder();
+                    if (post_params != null)
+                        foreach (String key in post_params.Keys)
+                            postParamBuilder.Append(String.Format("{0}={1}&", key, post_params[key]));
+
+                    Byte[] byteArray = Encoding.UTF8.GetBytes(postParamBuilder.ToString());
+
+                    postStream.Write(byteArray, 0, byteArray.Length);
+                    postStream.Close();
+
+
+                    preq.BeginGetResponse((IAsyncResult final_result) =>
+                    {
+                        HttpWebRequest req = final_result.AsyncState as HttpWebRequest;
+                        if (req != null)
+                        {
+                            try
+                            {
+                                WebResponse response = req.EndGetResponse(final_result);
+                                success_callback(response.GetResponseStream());
+                            }
+                            catch (WebException e)
+                            {
+                                error_callback(e.Message);
+                                return;
+                            }
+                        }
+                    }, preq);
+                }
+            }, request);
+        }
+
+        public static void post_image(Uri uri, Stream image_stream, RESTSuccessCallback success, RESTErrorCallback error)
+        {
+            HttpWebRequest request = WebRequest.CreateHttp(uri);
+            request.ContentType = "image/jpeg";
+            request.Method = "POST";
+
+            request.BeginGetRequestStream((IAsyncResult result) =>
+            {
+                HttpWebRequest preq = result.AsyncState as HttpWebRequest;
+                if (preq != null)
+                {
+                    Stream postStream = preq.EndGetRequestStream(result);
+
+                    image_stream.CopyTo(postStream);
+                    image_stream.Close();
+                    postStream.Close();
+
+                    preq.BeginGetResponse((IAsyncResult final_result) =>
+                    {
+                        HttpWebRequest req = final_result.AsyncState as HttpWebRequest;
+                        if (req != null)
+                        {
+                            try
+                            {
+                                WebResponse response = req.EndGetResponse(final_result);
+                                success(response.GetResponseStream());
+                            }
+                            catch (WebException e)
+                            {
+                                error(e.Message);
+                                return;
+                            }
+                        }
+                    }, preq);
+                }
+            }, request);
+        }
+
+
+        public static void upload_image(Stream image_stream)
+        {
+            try
+            {
+                var name = DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss-ff");
+                Uri uri = new Uri("http://pfet-v2.eecs.umich.edu:4908/img/" + name + ".jpg");
+                RESTAPI.RESTAPIHandler.post_image(uri, image_stream, (stream) =>
+                {
+                    System.Diagnostics.Debug.WriteLine("Uploaded " + name + " successfully");
+                },
+                    (reason) =>
+                    {
+                        System.Diagnostics.Debug.WriteLine("Uploading " + name + " failed: " + reason.ToString());
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Uploading image failed: " + ex.HResult.ToString("x8") + " - " + ex.Message);
+            }
+        }
+    }
+}
+
 namespace CameraExplorer
 {
     /// <summary>
@@ -80,6 +246,23 @@ namespace CameraExplorer
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Saving picture to camera roll failed: " + ex.HResult.ToString("x8") + " - " + ex.Message);
+            }
+
+            NavigationService.GoBack();
+        }
+
+        private void uploadButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Reposition ImageStream to beginning, because it has been read already in the OnNavigatedTo method.
+                _dataContext.ImageStream.Position = 0;
+
+                RESTAPI.RESTAPIHandler.upload_image(_dataContext.ImageStream);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Uploading from button click failed: " + ex.HResult.ToString("x8") + " - " + ex.Message);
             }
 
             NavigationService.GoBack();

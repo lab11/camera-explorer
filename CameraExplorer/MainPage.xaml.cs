@@ -40,6 +40,7 @@ namespace CameraExplorer
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
         private ProgressIndicator _progressIndicator = new ProgressIndicator();
         private bool _capturing = false;
+        private bool _capturing_sequence = false;
         private Semaphore _focusSemaphore = new Semaphore(1, 1);
         private bool _manuallyFocused = false;
         private Windows.Foundation.Size _focusRegionSize = new Windows.Foundation.Size(80, 80);
@@ -49,6 +50,7 @@ namespace CameraExplorer
         private ApplicationBarIconButton _sensorButton = null;
         private ApplicationBarIconButton _captureButton = null;
         private ApplicationBarIconButton _settingsButton = null;
+        private ApplicationBarIconButton _sequenceButton = null;
         
         private CameraSensorLocation _sensorLocation = CameraSensorLocation.Back;
 
@@ -433,6 +435,62 @@ namespace CameraExplorer
             }
         }
 
+        //private void FrameAcquiredEvent(CameraCaptureSequence sequence, FrameAcquiredEventArgs e)
+        //{
+            //RESTAPI.RESTAPIHandler.upload_image(sequence.Frames[0].CaptureStream);
+        //}
+
+        /// <summary>
+        /// Added by Pat: Capture a sequence of photos.
+        /// </summary>
+        private async Task CapturePhotoSequence()
+        {
+            if (_capturing)
+            {
+                MessageBox.Show("Already capturing photos?");
+                return;
+            }
+            while (_capturing_sequence)
+            {
+                _capturing = true;
+                MemoryStream stream = new MemoryStream();
+
+                // This API is a stub for what we want to do in the future -- the only valid value
+                // for the sequence is 1. So we just keep taking a series of 1-picture sequences
+                CameraCaptureSequence sequence = _dataContext.Device.CreateCaptureSequence(1);
+                sequence.Frames[0].CaptureStream = stream.AsOutputStream();
+
+                await _dataContext.Device.PrepareCaptureSequenceAsync(sequence);
+                await sequence.StartCaptureAsync();
+
+                stream.Seek(0, SeekOrigin.Begin);
+                RESTAPI.RESTAPIHandler.upload_image(stream);
+
+                //await Task.Delay(1000);
+            }
+            _capturing = false;
+        }
+
+        /// <summary>
+        /// Added by Pat: Button handler for starting a sequence of photo captures
+        /// </summary>
+        private async void sequenceButton_Click(object sender, EventArgs e)
+        {
+            if (_capturing_sequence)
+            {
+                _capturing_sequence = false;
+                _sequenceButton.IconUri = new Uri("Assets/Icons/appbar.feature.transport_play.png", UriKind.Relative);
+                _sequenceButton.Text = "start sequence";
+            }
+            else
+            {
+                _capturing_sequence = true;
+                _sequenceButton.IconUri = new Uri("Assets/Icons/appbar.feature.transport_pause.png", UriKind.Relative);
+                _sequenceButton.Text = "stop sequence";
+                await CapturePhotoSequence();
+            }
+        }
+
         /// <summary>
         /// Half-pressing the shutter key initiates autofocus.
         /// </summary>
@@ -482,6 +540,12 @@ namespace CameraExplorer
             _settingsButton.Text = "settings";
             _settingsButton.IsEnabled = false;
             appBar.Buttons.Add(_settingsButton);
+
+            _sequenceButton = new ApplicationBarIconButton(new Uri("Assets/Icons/transport_play.png", UriKind.Relative));
+            _sequenceButton.Click += new EventHandler(sequenceButton_Click);
+            _sequenceButton.Text = "start sequence";
+            _sequenceButton.IsEnabled = false;
+            appBar.Buttons.Add(_sequenceButton);
 
             ApplicationBar = appBar;
         }

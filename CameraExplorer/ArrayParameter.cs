@@ -455,10 +455,12 @@ namespace CameraExplorer
 
             CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, KnownCameraPhotoProperties.ExposureTime);
             object value = Device.GetProperty(PropertyId);
-            UInt32[] standardValues = { /* 16000, 8000, 4000,*/ 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2 };
+            // UInt32[] standardValues = { /* 16000, 8000, 4000,*/ 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2 };
+            UInt32[] standardValues = { 16666, 16000, 8000, 4000, 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2 };
 
             UInt32 min = (UInt32)range.Min;
             UInt32 max = (UInt32)range.Max;
+            System.Diagnostics.Debug.WriteLine(String.Format("Exposure time range (min {0}, max {1})", min, max));
 
             foreach (UInt32 i in standardValues)
             {
