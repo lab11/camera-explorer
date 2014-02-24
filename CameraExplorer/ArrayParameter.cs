@@ -401,6 +401,25 @@ namespace CameraExplorer
                     SelectedOption = option;
                 }
             }
+
+            // The phone does support these resolutions, though it isn't given by the above? Aha:
+            // http://developer.nokia.com/resources/library/Lumia/imaging/working-with-high-resolution-photos/capturing-high-resolution-photos.html
+            var deviceName = DeviceStatus.DeviceName;
+            if (deviceName.Contains("RM-875") || deviceName.Contains("RM-876") || deviceName.Contains("RM-877"))
+            {
+                Windows.Foundation.Size[] unofficialValues = { new Windows.Foundation.Size(7712, 4352), new Windows.Foundation.Size(7136, 5360) };
+                foreach (Windows.Foundation.Size i in unofficialValues)
+                {
+                    option = new ArrayParameterOption(i, i.Width + " x " + i.Height);
+
+                    Options.Add(option);
+
+                    if (i.Equals(value))
+                    {
+                        SelectedOption = option;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -413,7 +432,14 @@ namespace CameraExplorer
             {
                 Modifiable = false;
 
-                await Device.SetCaptureResolutionAsync((Windows.Foundation.Size)option.Value);
+                try
+                {
+                    await Device.SetCaptureResolutionAsync((Windows.Foundation.Size)option.Value);
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine("CaptureResolutionParameter::SetOption Exception: " + e.Message);
+                }
 
                 Modifiable = true;
             }
