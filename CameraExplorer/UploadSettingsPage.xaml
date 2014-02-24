@@ -38,6 +38,8 @@
                     Click="SetToCapacitor_Click" />
             <Button Content="Set to memristor" HorizontalAlignment="Left" Margin="10,258,0,0" VerticalAlignment="Top" Width="256"
                     Click="SetToMemristor_Click" />
+            <Button Content="Set to ninja" HorizontalAlignment="Left" Margin="10,330,0,0" VerticalAlignment="Top" Width="256"
+                    Click="SetToNinja_Click" />
         </Grid>
     </Grid>
 

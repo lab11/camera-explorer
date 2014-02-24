@@ -51,6 +51,11 @@ namespace CameraExplorer
             UrlBox.Text = "http://memristor-v1.eecs.umich.edu:4908/img/";
         }
 
+        private void SetToNinja_Click(object sender, EventArgs e)
+        {
+            UrlBox.Text = "http://ninja.eecs.umich.edu:4908/img/";
+        }
+
         private void doneButton_Click(object sender, EventArgs e)
         {
             try
@@ -64,6 +69,11 @@ namespace CameraExplorer
                 System.Diagnostics.Debug.WriteLine("donebutton_Click error: " + err.Message);
                 MessageBox.Show("Bad URL: " + err.Message);
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
