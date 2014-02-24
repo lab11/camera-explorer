@@ -155,12 +155,14 @@ namespace RESTAPI
         }
 
 
-        public static void upload_image(Stream image_stream)
+        public static void upload_image(Uri uri, Stream image_stream)
         {
+            System.Diagnostics.Debug.WriteLine("upload image start. uri: " + uri.ToString());
             try
             {
                 var name = DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss-ff");
-                Uri uri = new Uri("http://pfet-v2.eecs.umich.edu:4908/img/" + name + ".jpg");
+                uri = new Uri(uri.ToString() + name + ".jpg");
+                System.Diagnostics.Debug.WriteLine(String.Format("About to upload {0} to {1}", name, uri.ToString()));
                 RESTAPI.RESTAPIHandler.post_image(uri, image_stream, (stream) =>
                 {
                     System.Diagnostics.Debug.WriteLine("Uploaded " + name + " successfully");
@@ -256,9 +258,11 @@ namespace CameraExplorer
             try
             {
                 // Reposition ImageStream to beginning, because it has been read already in the OnNavigatedTo method.
+                System.Diagnostics.Debug.WriteLine("uploadButton_Click Before seeking image stream");
                 _dataContext.ImageStream.Position = 0;
 
-                RESTAPI.RESTAPIHandler.upload_image(_dataContext.ImageStream);
+                System.Diagnostics.Debug.WriteLine("uploadButton_Click Before calling upload_image");
+                RESTAPI.RESTAPIHandler.upload_image(_dataContext.UploadUrl.Url, _dataContext.ImageStream);
             }
             catch (Exception ex)
             {

@@ -27,6 +27,8 @@ namespace CameraExplorer
         private static IsolatedStorageSettings _settings = IsolatedStorageSettings.ApplicationSettings;
         private PhotoCaptureDevice _device = null;
         private ObservableCollection<Parameter> _parameters = new ObservableCollection<Parameter>();
+        
+        private UrlParameter _upload_url;
 
         /// <summary>
         /// Singleton instance accessor.
@@ -65,6 +67,14 @@ namespace CameraExplorer
                         PropertyChanged(this, new PropertyChangedEventArgs("Parameters"));
                     }
                 }
+            }
+        }
+
+        public UrlParameter UploadUrl
+        {
+            get
+            {
+                return _upload_url;
             }
         }
 
@@ -121,6 +131,9 @@ namespace CameraExplorer
                         addParameter(new AutoFocusRangeParameter(_device));
                         addParameter(new FocusIlluminationModeParameter(_device));
                         addParameter(new CaptureResolutionParameter(_device));
+
+                        _upload_url = new UploadURLParameter(_device);
+                        _upload_url.SetSavedOrDefault();
 
                         Parameters = newParameters;
                     }

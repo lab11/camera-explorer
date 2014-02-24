@@ -99,6 +99,9 @@
     </Compile>
     <Compile Include="ArrayParameter.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="UploadSettingsPage.xaml.cs">
+      <DependentUpon>UploadSettingsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Parameter.cs" />
     <Compile Include="OverlayTemplateSelector.cs" />
     <Compile Include="DataContext.cs" />
@@ -120,6 +123,7 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingsTemplateSelector.cs" />
+    <Compile Include="UrlParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -130,6 +134,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UploadSettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -149,6 +157,7 @@
   <ItemGroup>
     <Content Include="Assets\Icons\appbar.feature.camera.rest.png" />
     <Content Include="Assets\Icons\appbar.feature.settings.rest.png" />
+    <Content Include="Assets\Icons\check.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.16000.png" />
     <None Include="SplashScreenImage.jpg" />
     <Content Include="Assets\AlignmentGrid.png" />

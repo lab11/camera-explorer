@@ -51,6 +51,7 @@ namespace CameraExplorer
         private ApplicationBarIconButton _captureButton = null;
         private ApplicationBarIconButton _settingsButton = null;
         private ApplicationBarIconButton _sequenceButton = null;
+        private ApplicationBarIconButton _uploadSettingsButton = null;
         
         private CameraSensorLocation _sensorLocation = CameraSensorLocation.Back;
 
@@ -73,6 +74,12 @@ namespace CameraExplorer
             menuItem.IsEnabled = false;
             ApplicationBar.MenuItems.Add(menuItem);
             menuItem.Click += new EventHandler(aboutMenuItem_Click);
+
+            ApplicationBarMenuItem uploadMenuItem = new ApplicationBarMenuItem();
+            uploadMenuItem.Text = "upload settings";
+            uploadMenuItem.IsEnabled = false;
+            ApplicationBar.MenuItems.Add(uploadMenuItem);
+            uploadMenuItem.Click += new EventHandler(uploadSettingsButton_Click);
         }
 
         /// <summary>
@@ -246,6 +253,14 @@ namespace CameraExplorer
             }
 
             await Capture();
+        }
+
+        /// <summary>
+        /// Clicking on the settings button begins navigating to the settings page.
+        /// </summary>
+        private void uploadSettingsButton_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/UploadSettingsPage.xaml", UriKind.Relative));
         }
 
         /// <summary>
@@ -464,7 +479,7 @@ namespace CameraExplorer
                 await sequence.StartCaptureAsync();
 
                 stream.Seek(0, SeekOrigin.Begin);
-                RESTAPI.RESTAPIHandler.upload_image(stream);
+                RESTAPI.RESTAPIHandler.upload_image(_dataContext.UploadUrl.Url, stream);
 
                 //await Task.Delay(1000);
             }
