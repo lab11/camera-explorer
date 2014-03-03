@@ -56,6 +56,11 @@ namespace CameraExplorer
             UrlBox.Text = "http://ninja.eecs.umich.edu:4908/img/";
         }
 
+        private void SetToPatbook_Click(object sender, EventArgs e)
+        {
+            UrlBox.Text = "http://patbook.eecs.umich.edu:4908/img/";
+        }
+
         private void doneButton_Click(object sender, EventArgs e)
         {
             try

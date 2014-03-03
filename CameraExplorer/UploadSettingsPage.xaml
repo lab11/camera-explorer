@@ -40,6 +40,8 @@
                     Click="SetToMemristor_Click" />
             <Button Content="Set to ninja" HorizontalAlignment="Left" Margin="10,330,0,0" VerticalAlignment="Top" Width="256"
                     Click="SetToNinja_Click" />
+            <Button Content="Set to patbook" HorizontalAlignment="Left" Margin="10,402,0,0" VerticalAlignment="Top" Width="256"
+                    Click="SetToPatbook_Click"/>
         </Grid>
     </Grid>
 
