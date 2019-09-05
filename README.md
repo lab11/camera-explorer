@@ -1,3 +1,10 @@
+What is this?
+=============
+
+This is old, experimental code that eventual morphed into https://github.com/lab11/vlc-localization. It's likely not useful for anything, but it was useful once to get started, so it's here.
+
+----
+
 Camera Explorer
 ===============
 
